@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Macro Dashboard · 2026–2029</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--surface:#13161e;--border:rgba(255,255,255,0.07);
+  --muted:#4a5068;--text:#e8eaf2;--dim:#8890aa;
+  --purple:#9d8df1;--amber:#f0b429;--blue:#5aaeff;--green:#3ecf8e;
+  --mono:'DM Mono',monospace;--sans:'Syne',sans-serif;
+  --radius:10px;--radius-lg:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;}
+.page{max-width:980px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+.header-left h1{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.2;}
+.header-left h1 span{color:var(--amber);}
+.tagline{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.04em;}
+.live-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;flex-shrink:0;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.explain-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:2rem;}
+.explain-card{background:var(--surface);padding:1rem 1.1rem;}
+.ec-dot{width:8px;height:8px;border-radius:50%;margin-bottom:8px;}
+.ec-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.ec-text{font-size:11px;color:var(--dim);line-height:1.5;}
+.tab-row{display:flex;gap:4px;margin-bottom:1.4rem;flex-wrap:wrap;}
+.tab-btn{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;transition:all .15s;}
+.tab-btn:hover:not(.active){border-color:rgba(255,255,255,.15);color:var(--text);}
+.tab-btn.active{background:rgba(255,255,255,.07);color:var(--text);border-color:rgba(255,255,255,.15);}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:1.2rem;}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;position:relative;overflow:hidden;}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--purple));}
+.mc-l{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase;}
+.mc-v{font-size:17px;font-weight:500;color:var(--text);}
+.mc-s{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:.8rem;font-family:var(--mono);font-size:11px;color:var(--dim);}
+.legend span{display:flex;align-items:center;gap:6px;}
+.chart-wrap{position:relative;width:100%;height:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem 1rem 1rem;margin-bottom:1rem;}
+.ctrl-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.4rem 1.5rem;margin-top:1rem;}
+.ctrl-section-title{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;}
+.ctrl-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ctrl-lbl{font-size:12px;color:var(--dim);width:200px;flex-shrink:0;}
+.ctrl-val{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text);width:54px;text-align:right;flex-shrink:0;}
+.ctrl-group-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;margin-bottom:.6rem;}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:3px;background:rgba(255,255,255,.10);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--text);cursor:pointer;transition:transform .1s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+.sep{height:1px;background:var(--border);margin:1rem 0;}
+.methodology{margin-top:2rem;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.method-header{background:var(--surface);padding:1rem 1.4rem;font-size:12px;font-weight:500;color:var(--text);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.method-header::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--amber);}
+.method-body{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);}
+.method-card{background:var(--bg);padding:1.1rem 1.4rem;}
+.method-card h4{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;}
+.method-card p{font-size:12px;color:var(--dim);line-height:1.6;}
+.formula{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--amber);margin-top:8px;display:inline-block;}
+footer{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;}
+footer p{font-family:var(--mono);font-size:10px;color:var(--muted);}
+@media(max-width:700px){
+  .mgrid{grid-template-columns:1fr 1fr;}
+  .ctrl-grid{grid-template-columns:1fr;gap:0;}
+  .explain-strip{grid-template-columns:1fr 1fr;}
+  .method-body{grid-template-columns:1fr;}
+  .ctrl-lbl{width:160px;font-size:11px;}
+  header{flex-direction:column;}
+}
+@media(max-width:480px){
+  .explain-strip{grid-template-columns:1fr;}
+  .page{padding:1.5rem 1rem 3rem;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="header-left">
+    <h1>BTC Macro <span>Dashboard</span></h1>
+    <div class="tagline">MSTR · BTC PRICE · HASHRATE · GLOBAL M2 · PROJECTION 2026–2029</div>
+  </div>
+  <div class="live-badge"><span class="live-dot"></span>Interactive model</div>
+</header>
+
+<div class="explain-strip">
+  <div class="explain-card">
+    <div class="ec-dot" style="background:var(--purple)"></div>
+    <div class="ec-title">MSTR Stock</div>
+    <div class="ec-text">Strategy Inc holds 762,099 BTC — the world's largest public corporate Bitcoin reserve. The stock price is modeled via NAV: BTC holdings × price × mNAV premium ÷ shares outstanding.</div>
+  </div>
+  <div class="explain-card">
+    <div class="ec-dot" style="background:var(--amber)"></div>
+    <div class="ec-title">Bitcoin Price</div>
+    <div class="ec-text">BTC price uses exponential trend extrapolation coupled to global M2 liquidity growth. A coupling factor controls how strongly monetary expansion feeds into BTC appreciation.</div>
+  </div>
+  <div class="explain-card">
+    <div class="ec-dot" style="background:var(--blue)"></div>
+    <div class="ec-title">Network Hashrate</div>
+    <div class="ec-text">Hashrate measures total computational power securing Bitcoin. It has grown ~65%/year since 2020 and now exceeds 1,000 EH/s. Higher hashrate signals miner confidence and network security.</div>
+  </div>
+  <div class="explain-card">
+    <div class="ec-dot" style="background:var(--green)"></div>
+    <div class="ec-title">Global M2 Liquidity</div>
+    <div class="ec-text">Combined M2 money supply from the US, China, Eurozone, and Japan — currently ~$100 trillion. Research suggests a ~60–70 day lag between M2 expansion and Bitcoin price movements.</div>
+  </div>
+</div>
+
+<div class="tab-row">
+  <button class="tab-btn active" onclick="setTab('mstr',this)">MSTR stock</button>
+  <button class="tab-btn" onclick="setTab('price',this)">BTC price</button>
+  <button class="tab-btn" onclick="setTab('hash',this)">Hashrate</button>
+  <button class="tab-btn" onclick="setTab('m2',this)">Global M2</button>
+  <button class="tab-btn" onclick="setTab('all',this)">All (normalised)</button>
+</div>
+
+<div class="mgrid" id="metrics"></div>
+<div class="legend" id="legend"></div>
+
+<div class="chart-wrap">
+  <canvas id="mainChart"></canvas>
+</div>
+
+<div class="ctrl-section">
+  <div class="ctrl-section-title">Adjust assumptions — explore scenarios in real time</div>
+  <div class="ctrl-grid">
+    <div>
+      <div class="ctrl-group-label">BTC &amp; HASHRATE</div>
+      <div class="ctrl-row"><span class="ctrl-lbl">BTC annual growth, base</span><input type="range" min="-20" max="120" step="1" value="30" id="sPriceGrowth"><span class="ctrl-val" id="vPriceGrowth">30%</span></div>
+      <div class="ctrl-row"><span class="ctrl-lbl">BTC volatility 1&#963;</span><input type="range" min="10" max="100" step="1" value="55" id="sPriceVol"><span class="ctrl-val" id="vPriceVol">55%</span></div>
+      <div class="ctrl-row"><span class="ctrl-lbl">Hashrate annual growth</span><input type="range" min="5" max="80" step="1" value="35" id="sHashGrowth"><span class="ctrl-val" id="vHashGrowth">35%</span></div>
+      <div class="sep"></div>
+      <div class="ctrl-group-label">GLOBAL M2</div>
+      <div class="ctrl-row"><span class="ctrl-lbl">M2 annual growth</span><input type="range" min="-2" max="12" step="0.5" value="4" id="sM2Growth"><span class="ctrl-val" id="vM2Growth">4%</span></div>
+      <div class="ctrl-row"><span class="ctrl-lbl">M2 &#8594; BTC coupling (0–1)</span><input type="range" min="0" max="1" step="0.05" value="0.4" id="sM2Link"><span class="ctrl-val" id="vM2Link">0.40</span></div>
+    </div>
+    <div>
+      <div class="ctrl-group-label">MSTR — STRATEGY INC</div>
+      <div class="ctrl-row"><span class="ctrl-lbl">BTC accumulation / year</span><input type="range" min="0" max="300000" step="5000" value="80000" id="sBtcAccum"><span class="ctrl-val" id="vBtcAccum">80,000</span></div>
+      <div class="ctrl-row"><span class="ctrl-lbl">mNAV multiple by 2029</span><input type="range" min="0.8" max="4.0" step="0.1" value="1.5" id="sMnav"><span class="ctrl-val" id="vMnav">1.5&#215;</span></div>
+      <div class="ctrl-row"><span class="ctrl-lbl">MSTR volatility 1&#963;</span><input type="range" min="20" max="120" step="5" value="70" id="sMstrVol"><span class="ctrl-val" id="vMstrVol">70%</span></div>
+      <div class="ctrl-row"><span class="ctrl-lbl">Share dilution / year</span><input type="range" min="0" max="30" step="1" value="12" id="sDilution"><span class="ctrl-val" id="vDilution">12%</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="methodology">
+  <div class="method-header">How the model works</div>
+  <div class="method-body">
+    <div class="method-card">
+      <h4>Projection engine</h4>
+      <p>All variables use exponential trend extrapolation with lognormal confidence intervals, computed in quarterly steps. Bands widen at longer horizons, correctly representing compounding uncertainty.</p>
+      <div class="formula">V(t) = V₀ × (1 + r_q)^t × exp(±nσ√t)</div>
+    </div>
+    <div class="method-card">
+      <h4>MSTR mNAV model</h4>
+      <p>MSTR price derives from modified Net Asset Value. The mNAV premium peaked at ~4× in late 2024 and has compressed to ~1.2× as competing Bitcoin treasury companies entered the market.</p>
+      <div class="formula">Price = (BTC × BTC_price × mNAV) ÷ shares</div>
+    </div>
+    <div class="method-card">
+      <h4>M2 liquidity coupling</h4>
+      <p>The BTC growth rate incorporates a liquidity coupling factor. At 0, BTC moves independently. At 1, BTC fully absorbs M2 growth as additional return. Research suggests a 60–70 day lag.</p>
+      <div class="formula">r_eff = r_base + coupling × r_M2</div>
+    </div>
+    <div class="method-card">
+      <h4>Confidence bands</h4>
+      <p>±1σ bands cover ~68% of outcomes given the assumptions. ±2σ bands cover ~95%. Bitcoin's historical annual volatility of 50–80% makes the ±2σ price band very wide — this is accurate, not a flaw.</p>
+      <div class="formula">±1σ → 68%  |  ±2σ → 95%</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Data: CoinWarz · JPMorgan · StreetStats · CoinDesk · MacroTrends · SEC filings (Mar 2026)</p>
+  <p>Not financial advice · Projections are illustrative scenarios only</p>
+</footer>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const HL=['Jan 2022','Jul 2022','Jan 2023','Jul 2023','Jan 2024','Jul 2024','Jan 2025','Jul 2025','Jan 2026','Mar 2026'];
+const HH=[200,195,270,360,490,570,720,700,780,800];
+const HM=[101,98,94,93,96,97,99,100,100,100];
+const HP=[47000,21000,23000,30000,42000,58000,95000,97000,92000,70000];
+const HMS=[220,140,16,22,55,140,320,450,280,135];
+const PN=13,PLN=HL.length;
+const C={mstr:'#9d8df1',price:'#f0b429',hash:'#5aaeff',m2:'#3ecf8e'};
+function pjL(){const m=['Jan','Apr','Jul','Oct'];return Array.from({length:PN},(_,q)=>m[q%4]+' '+(2026+Math.floor(q/4)));}
+const AL=[...HL,...pjL()];
+let tab='mstr',chart=null;
+function gP(){return{pg:+document.getElementById('sPriceGrowth').value/100,pv:+document.getElementById('sPriceVol').value/100,hg:+document.getElementById('sHashGrowth').value/100,hu:.2,mg:+document.getElementById('sM2Growth').value/100,mu:.05,ml:+document.getElementById('sM2Link').value,ba:+document.getElementById('sBtcAccum').value,mn:+document.getElementById('sMnav').value,mv:+document.getElementById('sMstrVol').value/100,dl:+document.getElementById('sDilution').value/100};}
+function proj(s,r,u,n){const qr=Math.pow(1+r,.25)-1,qu=u/2,b=[],l1=[],h1=[],l2=[],h2=[];for(let i=0;i<n;i++){const t=i+1,bv=s*Math.pow(1+qr,t),sv=qu*Math.sqrt(t);b.push(bv);l1.push(bv*Math.exp(-sv));h1.push(bv*Math.exp(sv));l2.push(bv*Math.exp(-2*sv));h2.push(bv*Math.exp(2*sv));}return{b,l1,h1,l2,h2};}
+function pMSTR(p,bP){const b=[],l1=[],h1=[],l2=[],h2=[];const qa=p.ba/4,qd=Math.pow(1+p.dl,.25)-1;let bh=762099,sh=340e6;for(let i=0;i<PN;i++){bh+=qa;sh*=(1+qd);const mn=1.2+(p.mn-1.2)*((i+1)/PN),bv=(bh*bP.b[i]*mn)/sh,sv=p.mv/2*Math.sqrt(i+1);b.push(bv);l1.push(bv*Math.exp(-sv));h1.push(bv*Math.exp(sv));l2.push(bv*Math.exp(-2*sv));h2.push(bv*Math.exp(2*sv));}return{b,l1,h1,l2,h2};}
+function na(n){return Array(n).fill(null);}
+const rgb={'#9d8df1':'157,141,241','#f0b429':'240,180,41','#5aaeff':'90,174,255','#3ecf8e':'62,207,142'};
+function mDS(ha,pr,co,lb){const L=ha[PLN-1],hF=[...ha,...na(PN)],bF=[...na(PLN-1),L,...pr.b],h1F=[...na(PLN-1),L,...pr.h1],l1F=[...na(PLN-1),L,...pr.l1],h2F=[...na(PLN-1),L,...pr.h2],l2F=[...na(PLN-1),L,...pr.l2],a=rgb[co];return[{label:'_2',data:h2F,borderWidth:0,pointRadius:0,backgroundColor:`rgba(${a},.10)`,fill:{target:{value:l2F},above:`rgba(${a},.10)`,below:'transparent'},tension:.35,yAxisID:'yL'},{label:'_1',data:h1F,borderWidth:0,pointRadius:0,backgroundColor:`rgba(${a},.20)`,fill:{target:{value:l1F},above:`rgba(${a},.20)`,below:'transparent'},tension:.35,yAxisID:'yL'},{label:lb+' (historical)',data:hF,borderColor:co,backgroundColor:'transparent',borderWidth:2,pointRadius:hF.map((_,i)=>i<PLN?2.5:0),pointHoverRadius:5,tension:.35,fill:false,yAxisID:'yL'},{label:lb+' (projection)',data:bF,borderColor:co,backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],pointRadius:0,pointHoverRadius:4,tension:.35,fill:false,yAxisID:'yL'}];}
+function allDS(hP,mP,pP,mS){function pF(h,p,r){return[...na(PLN-1),h[PLN-1]/r*100,...p.b.map(v=>v/r*100)];}function hF(h,r){return[...h.map(v=>v/r*100),...na(PN)];}return[['MSTR',HMS,mS,135,C.mstr],['BTC',HP,pP,70000,C.price],['Hashrate',HH,hP,800,C.hash],['M2',HM,mP,100,C.m2]].flatMap(([l,h,p,r,c])=>[{label:l+' (hist.)',data:hF(h,r),borderColor:c,backgroundColor:'transparent',borderWidth:2,pointRadius:hF(h,r).map((_,i)=>i<PLN?2:0),pointHoverRadius:4,tension:.35,fill:false,yAxisID:'yL'},{label:l+' (proj.)',data:pF(h,p,r),borderColor:c,backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],pointRadius:0,tension:.35,fill:false,yAxisID:'yL'}]);}
+function yF(v){if(!isFinite(v)||v===null)return'';if(tab==='mstr')return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1000?'$'+(v/1000).toFixed(0)+'K':'$'+Math.round(v);if(tab==='price'){if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(v>=1000)return'$'+(v/1000).toFixed(0)+'K';return'$'+Math.round(v);}if(tab==='hash')return v>=1000?(v/1000).toFixed(1)+'K EH/s':Math.round(v)+' EH/s';if(tab==='m2')return'$'+Math.round(v)+'T';return Math.round(v)+'%';}
+function lgI(){const m={mstr:[{c:'rgba(157,141,241,.25)',l:'±2σ'},{c:'rgba(157,141,241,.45)',l:'±1σ'},{c:C.mstr,l:'Historical MSTR'},{c:C.mstr,l:'Projection',d:1}],price:[{c:'rgba(240,180,41,.25)',l:'±2σ'},{c:'rgba(240,180,41,.45)',l:'±1σ'},{c:C.price,l:'Historical BTC'},{c:C.price,l:'Projection',d:1}],hash:[{c:'rgba(90,174,255,.25)',l:'±2σ'},{c:'rgba(90,174,255,.45)',l:'±1σ'},{c:C.hash,l:'Historical hashrate'},{c:C.hash,l:'Projection',d:1}],m2:[{c:'rgba(62,207,142,.25)',l:'±2σ'},{c:'rgba(62,207,142,.45)',l:'±1σ'},{c:C.m2,l:'Historical M2'},{c:C.m2,l:'Projection',d:1}],all:[{c:C.mstr,l:'MSTR'},{c:C.price,l:'BTC price'},{c:C.hash,l:'Hashrate'},{c:C.m2,l:'Global M2'},{c:'#555',l:'Dashed = projection',d:1}]};return m[tab];}
+function rLg(){document.getElementById('legend').innerHTML=lgI().map(it=>`<span><span style="width:16px;height:9px;border-radius:2px;display:inline-block;${it.d?'border:1.5px dashed '+it.c+';background:transparent':'background:'+it.c}"></span>${it.l}</span>`).join('');}
+function uMet(p,mS,pP,hP,mP){const L=PN-1;function f(v){if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(v>=1000)return'$'+(v/1000).toFixed(0)+'K';return'$'+Math.round(v);}const bf=762099+p.ba*3,sf=340e6*Math.pow(1+p.dl,3);document.getElementById('metrics').innerHTML=`<div class="mc" style="--accent:var(--purple)"><div class="mc-l">MSTR price 2029 (base)</div><div class="mc-v">${f(mS.b[L])}</div><div class="mc-s">±1σ  ${f(mS.l1[L])} – ${f(mS.h1[L])}</div></div><div class="mc" style="--accent:var(--amber)"><div class="mc-l">BTC price 2029 (base)</div><div class="mc-v">${f(pP.b[L])}</div><div class="mc-s">±1σ  ${f(pP.l1[L])} – ${f(pP.h1[L])}</div></div><div class="mc" style="--accent:var(--blue)"><div class="mc-l">BTC per share 2029</div><div class="mc-v">${(bf/sf).toFixed(4)}</div><div class="mc-s">Today: ${(762099/340e6).toFixed(4)} BTC/share</div></div><div class="mc" style="--accent:var(--green)"><div class="mc-l">Global M2 2029 (base)</div><div class="mc-v">$${mP.b[L].toFixed(0)}T</div><div class="mc-s">±1σ  $${mP.l1[L].toFixed(0)} – $${mP.h1[L].toFixed(0)}T</div></div>`;}
+function render(){const p=gP(),er=p.pg+p.ml*p.mg,pP=proj(70000,er,p.pv,PN),hP=proj(800,p.hg,p.hu,PN),mP=proj(100,p.mg,p.mu,PN),mS=pMSTR(p,pP);let ds;if(tab==='mstr')ds=mDS(HMS,mS,C.mstr,'MSTR');else if(tab==='price')ds=mDS(HP,pP,C.price,'BTC');else if(tab==='hash')ds=mDS(HH,hP,C.hash,'Hashrate');else if(tab==='m2')ds=mDS(HM,mP,C.m2,'Global M2');else ds=allDS(hP,mP,pP,mS);const gc='rgba(255,255,255,0.05)',tc='#4a5068';if(chart){chart.data.datasets=ds;chart.options.scales.yL.ticks.callback=v=>yF(v);chart.update('none');}else{chart=new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:AL,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},animation:{duration:300},plugins:{legend:{display:false},tooltip:{backgroundColor:'#13161e',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#8890aa',bodyColor:'#e8eaf2',titleFont:{family:'DM Mono,monospace',size:10},bodyFont:{family:'DM Mono,monospace',size:11},padding:10,callbacks:{label:ctx=>{const v=ctx.parsed.y;if(v===null||ctx.dataset.label.startsWith('_'))return null;return' '+ctx.dataset.label+': '+yF(v);}},filter:i=>!i.dataset.label.startsWith('_')}},scales:{x:{ticks:{autoSkip:true,maxTicksLimit:11,maxRotation:30,color:tc,font:{size:10,family:'DM Mono,monospace'}},grid:{color:gc}},yL:{type:'linear',position:'left',ticks:{color:tc,font:{size:10,family:'DM Mono,monospace'},callback:v=>yF(v)},grid:{color:gc}}}},plugins:[{id:'spl',afterDraw(c){const cx=c.ctx,x=c.scales.x,y=c.scales.yL,xp=x.getPixelForValue(PLN-.5);cx.save();cx.setLineDash([4,3]);cx.strokeStyle='rgba(255,255,255,.12)';cx.lineWidth=1;cx.beginPath();cx.moveTo(xp,y.top);cx.lineTo(xp,y.bottom);cx.stroke();cx.setLineDash([]);cx.fillStyle='#4a5068';cx.font='10px DM Mono,monospace';cx.fillText('projection \u2192',xp+6,y.top+14);cx.restore();}}]});}uMet(p,mS,pP,hP,mP);rLg();}
+function setTab(t,btn){tab=t;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(chart){chart.destroy();chart=null;}render();}
+const SL=[['sPriceGrowth','vPriceGrowth',v=>v+'%'],['sPriceVol','vPriceVol',v=>v+'%'],['sHashGrowth','vHashGrowth',v=>v+'%'],['sM2Growth','vM2Growth',v=>v+'%'],['sM2Link','vM2Link',v=>(+v).toFixed(2)],['sBtcAccum','vBtcAccum',v=>(+v).toLocaleString('en-US')],['sMnav','vMnav',v=>(+v).toFixed(1)+'×'],['sMstrVol','vMstrVol',v=>v+'%'],['sDilution','vDilution',v=>v+'%']];
+SL.forEach(([s,v,f])=>{document.getElementById(s).addEventListener('input',function(){document.getElementById(v).textContent=f(this.value);render();});});
+render();
+</script>
+</body>
+</html>
